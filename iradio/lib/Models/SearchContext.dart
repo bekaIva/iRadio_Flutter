@@ -14,4 +14,6 @@ class SearchContext extends ChangeNotifier {
       this.searchKeyword,
       this.searchGenre,
       this.currentPage = 1});
+  SearchContext.Genre(this.searchGenre,
+      {this.searchMode = Mode.Genre, this.currentPage = 1});
 }

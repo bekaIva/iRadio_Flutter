@@ -1,4 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:iradio/Models/Enums.dart';
+import 'package:iradio/Models/SearchContext.dart';
 import 'package:iradio/ViewModels/MainViewModel.dart';
 import 'package:provider/provider.dart';
 
@@ -10,9 +14,7 @@ class iRadio extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => MainViewModel(),
       child: MaterialApp(
-        theme: ThemeData(
-            scaffoldBackgroundColor: Colors.green,
-            visualDensity: VisualDensity.adaptivePlatformDensity),
+        theme: ThemeData(visualDensity: VisualDensity.adaptivePlatformDensity),
         home: MainPage(),
       ),
     );
@@ -25,34 +27,88 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  List<TabContent> tabContents = [
-    TabContent(title: 'test', icon: Icons.add),
-    TabContent(title: 'test', icon: Icons.add),
-  ];
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: tabContents.length,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
+          title: Text('iRadio'),
           bottom: TabBar(
-            isScrollable: true,
-            tabs: tabContents.map((e) {
-              return Tab(
-                icon:Icon(e.icon),
-                text: e.title,
-              );
-            }).toList(),
+            tabs: <Widget>[
+              Tab(
+                text: 'Popular Genres',
+                icon: Icon(Icons.whatshot),
+              ),
+              Tab(
+                text: 'Featured Stations',
+                icon: Icon(
+                  Icons.verified_user,
+                  size: 32,
+                ),
+              ),
+              Tab(
+                text: 'Popular Stations',
+                icon: Icon(
+                  Icons.whatshot,
+                ),
+              ),
+            ],
+            isScrollable: false,
           ),
         ),
-        drawer: Drawer(),
         body: SafeArea(
           child: TabBarView(
-            children: tabContents.map((e) {
-              return TabWidget(
-                tabContent: e,
-              );
-            }).toList(),
+            children: <Widget>[
+              Consumer<MainViewModel>(
+                builder: (context, viewmodel, widget) => Container(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.only(left: 12, right: 12),
+                    physics: BouncingScrollPhysics(),
+                    child: Table(
+                      children: () {
+                        int i = viewmodel.genres.length ~/ 4;
+                        int taken = 0;
+                        List<TableRow> children = List<TableRow>();
+                        for (int ii = 0; ii < i; ii++) {
+                          List<Widget> row = viewmodel.genres
+                              .skip(taken)
+                              .take(4)
+                              .map((e) => GenreWidget(
+                                    genreTapped: (genre) {
+                                      viewmodel.context =
+                                          SearchContext.Genre(genre);
+                                      viewmodel.Search();
+                                    },
+                                    genre: e,
+                                  ))
+                              .toList();
+                          taken += 4;
+                          children.add(TableRow(children: row));
+                        }
+                        if (viewmodel.genres.length > taken) {
+                          var l = viewmodel.genres
+                              .skip(viewmodel.genres.length - taken)
+                              .map((e) => Container(
+                                    child: Text(e.toString()),
+                                  ))
+                              .toList();
+
+                          while (l.length < 4) {
+                            l.add(Container());
+                          }
+
+                          children.add(TableRow(children: l));
+                        }
+                        return children;
+                      }(),
+                    ),
+                  ),
+                ),
+              ),
+              Container(),
+              Container()
+            ],
           ),
         ),
       ),
@@ -60,35 +116,42 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-class TabContent {
-  final String title;
-  final IconData icon;
-  const TabContent({this.title, this.icon});
-}
+class GenreWidget extends StatelessWidget {
+  final Genre genre;
+  final Function(Genre genre) genreTapped;
+  GenreWidget({this.genre, this.genreTapped});
 
-class TabWidget extends StatelessWidget {
-  final TabContent tabContent;
-  TabWidget({this.tabContent});
   @override
   Widget build(BuildContext context) {
-    final TextStyle textStyle = Theme.of(context).textTheme.headline4;
-    return Card(
-      color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              tabContent.icon,
-              color: textStyle.color,
-              size: 128.0,
+    return Center(
+      child: Container(
+        width: 100,
+        height: 100,
+        child: Card(
+          child: FlatButton(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+            onPressed: () {
+              genreTapped?.call(genre);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: Text(
+                  genre
+                      .toString()
+                      .replaceAll('Genre.', '')
+                      .replaceAll('_', ' '),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.copse(
+                      fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
-            Text(
-              tabContent.title,
-              style: textStyle,
-            )
-          ],
+          ),
+          elevation: 5,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         ),
       ),
     );
