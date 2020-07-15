@@ -13,10 +13,11 @@ class Channel {
   String Refferer;
   ValueNotifier<bool> IsPlaying = ValueNotifier<bool>(false);
   bool IsInFavorites;
-  List<Genre> Genres;
+  List<Genre> Genres = List<Genre>();
   String OfficialLink;
   String Quality;
   String CurrentTrack;
+  Channel() {}
   Channel.fromJson(String json) {}
   Future UpdateCurrentStatus() async {
     var res = await http.get(ChannelLink, headers: {'User-Agent': kUserAgent})

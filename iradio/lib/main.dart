@@ -1,3 +1,4 @@
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,6 +28,12 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -78,7 +85,7 @@ class _MainPageState extends State<MainPage> {
                                     genreTapped: (genre) {
                                       viewmodel.context =
                                           SearchContext.Genre(genre);
-                                      viewmodel.Search();
+                                      viewmodel.Search().then((value) async {});
                                     },
                                     genre: e,
                                   ))
@@ -138,10 +145,7 @@ class GenreWidget extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Center(
                 child: Text(
-                  genre
-                      .toString()
-                      .replaceAll('Genre.', '')
-                      .replaceAll('_', ' '),
+                  EnumToString.parse(genre).replaceAll('_', ' '),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.copse(
                       fontSize: 12, fontWeight: FontWeight.bold),
