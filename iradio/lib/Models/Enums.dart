@@ -80,4 +80,4 @@ enum Genre {
   garage,
   indian
 }
-enum Mode { Favorites, FeaturedPopular, Genre, Keyword }
+enum Mode { Favorites, Featured, Popular, Genre, Keyword }
